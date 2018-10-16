@@ -1,33 +1,6 @@
 import inspect
 
 
-def parse_self_arg_key(spec, locals_, instance):
-    self_arg_key = None
-
-    if locals_[spec.args[0]] is instance:
-        self_arg_key = spec.args[0]
-
-    if self_arg_key is None:
-        if 'self' in spec.args and instance is locals_['self']:
-            self_arg_key = 'self'
-
-    if self_arg_key is None:
-        possible_self_arg_keys = [
-            arg_name for arg_name in spec.args if locals_[arg_name] is instance
-        ]
-
-        if len(possible_self_arg_keys) > 0:
-            raise ValueError(
-                "Unable to serialize and object when multiple local"
-                " variables refer to self. Typically, 'self' should refer"
-                " to the object itself, but found the following: {}"
-                "".format(possible_self_arg_keys))
-
-        self_arg_key = possible_self_arg_keys[0]
-
-    return self_arg_key
-
-
 class Serializable(object):
 
     def __init__(self, *args, **kwargs):
