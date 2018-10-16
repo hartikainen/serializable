@@ -76,10 +76,6 @@ class Serializable(object):
         return state
 
     def __setstate__(self, state):
-        assert getattr(self, '_Serializable__initialized', False), (
-            "Cannot set state of uninitialized Serializable. Forgot to call"
-            " `self._Serializable__initialize` in your __init__ method?")
-
         out = type(self)(*state["__args"], **state["__kwargs"])
         self.__dict__.update(out.__dict__)
 
