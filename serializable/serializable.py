@@ -40,12 +40,18 @@ class Serializable(object):
         positional_values = [
             locals_[key] for key in positional_keys if key in locals_
         ]
-        var_positional_values = locals_.get(var_positional_keys[0], ())
+        var_positional_values = (
+            locals_.get(var_positional_keys[0], ())
+            if var_positional_keys
+            else ())
         keyword_values = {
             key: locals_[key]
             for key in keyword_keys if key in locals_
         }
-        var_keyword_values = locals_.get(var_keyword_keys[0], {})
+        var_keyword_values = (
+            locals_.get(var_keyword_keys[0], {})
+            if var_keyword_keys
+            else {})
 
         bound_arguments = signature.bind(*positional_values,
                                          *var_positional_values,

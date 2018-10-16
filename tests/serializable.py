@@ -12,15 +12,6 @@ class SimpleSerializable(Serializable):
         self._Serializable__initialize(locals())
 
 
-class UninitializedSerializable(Serializable):
-
-    def __init__(self, arg1, *args, kwarg1=None, **kwargs):
-        self.arg1 = arg1
-        self.args = args
-        self.kwarg1 = kwarg1
-        self.kwargs = kwargs
-
-
 def assert_objects_match(object1, object2):
     assert object1.arg1 == object2.arg1
     assert object1.args == object2.args
@@ -99,6 +90,14 @@ class TestSerializable(unittest.TestCase):
         assert_objects_match(simple_object_1, simple_object_2)
 
     def test_default_initialization(self):
+        class UninitializedSerializable(Serializable):
+
+            def __init__(self, arg1, *args, kwarg1=None, **kwargs):
+                self.arg1 = arg1
+                self.args = args
+                self.kwarg1 = kwarg1
+                self.kwargs = kwargs
+
         simple_object_1 = UninitializedSerializable(
             'ARG1',
             *('ARGS[1]', 'ARGS[2]'),
@@ -108,6 +107,23 @@ class TestSerializable(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             Serializable.clone(simple_object_1)
+
+    def test_initialize_called_only_once(self):
+        class SerializableClassA(Serializable):
+            def __init__(self, arg2):
+                self.arg2 = arg2
+                self._Serializable__initialize(locals())
+
+        class SerializableClassB(SerializableClassA):
+            def __init__(self, arg1, *args):
+                self.arg1 = arg1
+                self._Serializable__initialize(locals())
+                super(SerializableClassB, self).__init__(*args)
+
+        object1 = SerializableClassB('arg1', 'arg2')
+
+        assert object1.arg1 == 'arg1'
+        assert object1.arg2 == 'arg2'
 
     def test_clone_non_serializable(self):
         pass
