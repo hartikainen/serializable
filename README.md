@@ -1,2 +1,2 @@
-# serializable
-Utilities for creating serializable classes
+# Serializable
+Utilities for handling serializable classes.
