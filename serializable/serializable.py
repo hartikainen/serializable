@@ -64,7 +64,7 @@ class Serializable(object):
         self.__initialized = True
 
     def __getstate__(self):
-        assert self.__initialized, (
+        assert getattr(self, '_Serializable__initialized', False), (
             "Cannot get state from uninitialized Serializable. Forgot to call"
             " `self._Serializable__initialize` in your __init__ method?")
 
@@ -76,7 +76,7 @@ class Serializable(object):
         return state
 
     def __setstate__(self, state):
-        assert self.__initialized, (
+        assert getattr(self, '_Serializable__initialized', False), (
             "Cannot set state of uninitialized Serializable. Forgot to call"
             " `self._Serializable__initialize` in your __init__ method?")
 
