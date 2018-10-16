@@ -2,6 +2,7 @@ import inspect
 
 
 class Serializable(object):
+
     def __initialize(self, locals_):
         if getattr(self, "__initialized", False):
             return
@@ -36,10 +37,15 @@ class Serializable(object):
                 "Can't yet handle more than one variable kwargs. Got: {}"
                 "".format(var_keyword_keys))
 
-        positional_values = [locals_[key] for key in positional_keys]
-        var_positional_values = locals_[var_positional_keys[0]]
-        keyword_values = {key: locals_[key] for key in keyword_keys}
-        var_keyword_values = locals_[var_keyword_keys[0]]
+        positional_values = [
+            locals_[key] for key in positional_keys if key in locals_
+        ]
+        var_positional_values = locals_.get(var_positional_keys[0], ())
+        keyword_values = {
+            key: locals_[key]
+            for key in keyword_keys if key in locals_
+        }
+        var_keyword_values = locals_.get(var_keyword_keys[0], {})
 
         bound_arguments = signature.bind(*positional_values,
                                          *var_positional_values,
