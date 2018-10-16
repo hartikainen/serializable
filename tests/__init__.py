@@ -25,7 +25,13 @@ class TestSerializable(unittest.TestCase):
     def test_variable_args_functionality(self):
         pass
 
+    def test_empty_variable_args_functionality(self):
+        pass
+
     def test_variable_kwargs_functionality(self):
+        pass
+
+    def test_empty_variable_kwargs_functionality(self):
         pass
 
     def test_mixed_argument_types(self):
@@ -38,13 +44,22 @@ class TestSerializable(unittest.TestCase):
 
         simple_object_2 = Serializable.clone(simple_object_1)
 
-        from pdb import set_trace; from pprint import pprint; set_trace()
-
         assert simple_object_1.arg1 == simple_object_2.arg1
         assert simple_object_1.args == simple_object_2.args
         assert simple_object_1.kwarg1 == simple_object_2.kwarg1
         assert simple_object_1.kwargs == simple_object_2.kwargs
 
+    def test_missing_default_values(self):
+        pass
+
+    def test_default_initialization(self):
+        pass
+
+    def test_raises_with_more_than_one_args(self):
+        pass
+
+    def test_raises_with_more_than_one_kwargs(self):
+        pass
 
 if __name__ == '__main__':
     unittest.main()
