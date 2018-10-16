@@ -40,41 +40,49 @@ class Serializable(object):
         if getattr(self, "__initialized", False):
             return
 
-        spec = (inspect.getfullargspec(self.__init__)
-                if sys.version_info >= (3, 0)
-                else inspect.getargspec(self.__init__))
+        signature = inspect.signature(self.__init__)
+        positional_keys = [
+            p.name for p in signature.parameters.values()
+            if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+        ]
 
-        self_arg_key = parse_self_arg_key(spec, locals_, self)
+        var_positional_keys = [
+            p.name for p in signature.parameters.values()
+            if p.kind == p.VAR_POSITIONAL
+        ]
 
-        if self_arg_key is None:
+        keyword_keys = [
+            p.name for p in signature.parameters.values()
+            if p.kind == p.KEYWORD_ONLY
+        ]
+
+        var_keyword_keys = [
+            p.name for p in signature.parameters.values()
+            if p.kind == p.VAR_KEYWORD
+        ]
+
+        if len(var_positional_keys) > 1:
             raise NotImplementedError(
-                "Unable to serialize object without 'self'.")
+                "Can't yet handle more than one variable args. Got: {}"
+                "".format(var_positional_keys))
+        if len(var_keyword_keys) > 1:
+            raise NotImplementedError(
+                "Can't yet handle more than one variable kwargs. Got: {}"
+                "".format(var_keyword_keys))
 
-        args_values = tuple((
-            locals_[arg_key]
-            for arg_key in spec.args
-            if arg_key != self_arg_key))
+        positional_values = [locals_[key] for key in positional_keys]
+        var_positional_values = locals_[var_positional_keys[0]]
+        keyword_values = {key: locals_[key] for key in keyword_keys}
+        var_keyword_values = locals_[var_keyword_keys[0]]
 
-        varargs_values = locals_[spec.varargs] if spec.varargs else ()
+        bound_arguments = signature.bind(
+            *positional_values,
+            *var_positional_values,
+            **keyword_values,
+            **var_keyword_values)
 
-        full_args_values = tuple(args_values) + tuple(varargs_values)
-
-        varkw_values = (
-            (locals_[spec.varkw] if spec.varkw else {})
-            if sys.version_info >= (3, 0)
-            else (locals_[spec.keywords] if spec.keywords else {}))
-
-        kwonlyargs_values = {
-            key: locals_[key]
-            for key in spec.kwonlyargs
-        }
-
-        full_kwargs_values = varkw_values.copy()
-        full_kwargs_values.update(kwonlyargs_values)
-
-        self.__args = full_args_values
-        self.__kwargs = full_kwargs_values
-        self.__self_arg_key = self_arg_key
+        self.__args = bound_arguments.args
+        self.__kwargs = bound_arguments.kwargs
 
         self.__initialized = True
 
@@ -82,7 +90,6 @@ class Serializable(object):
         state = {
             '__args': self.__args,
             '__kwargs': self.__kwargs,
-            '__self_arg_key': self.__self_arg_key,
         }
 
         return state
@@ -91,29 +98,16 @@ class Serializable(object):
         out = type(self)(*state["__args"], **state["__kwargs"])
         self.__dict__.update(out.__dict__)
 
-    @classmethod
-    def clone(cls, instance, **kwargs):
+    @staticmethod
+    def clone(instance, **kwargs):
         assert isinstance(instance, Serializable) and instance.__initialized
-
-        spec = (inspect.getfullargspec(instance.__init__)
-                if sys.version_info >= (3, 0)
-                else inspect.getargspec(instance.__init__))
 
         state = instance.__getstate__()
 
-        in_order_arg_keys = [
-            arg_key for arg_key in spec.args
-            if arg_key != state['__self_arg_key']
-        ]
+        signature = inspect.signature(instance.__init__)
+        arguments = signature.bind(*state['__args'], **state['__kwargs'])
+        arguments.apply_defaults()
 
-        state["__args"] = tuple(state["__args"])
-        for kw, val in kwargs.items():
-            if kw in in_order_arg_keys:
-                state["__args"][in_order_arg_keys.index(kw)] = val
-            else:
-                state["__kwargs"][kw] = val
-
-        out = type(instance).__new__(type(instance))
-        out.__setstate__(state)
+        out = type(instance)(*arguments.args, **arguments.kwargs)
 
         return out
