@@ -80,7 +80,7 @@ class Serializable(object):
         self.__dict__.update(out.__dict__)
 
     @staticmethod
-    def clone(instance, **kwargs):
+    def clone(instance):
         assert isinstance(instance, Serializable), (
             "Can only clone Serializable objects. Got: {}"
             "".format(type(instance)))
