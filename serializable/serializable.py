@@ -2,12 +2,6 @@ import inspect
 
 
 class Serializable(object):
-
-    def __init__(self, *args, **kwargs):
-        self.__args = args
-        self.__kwargs = kwargs
-        self.__initialized = True
-
     def __initialize(self, locals_):
         if getattr(self, "__initialized", False):
             return
