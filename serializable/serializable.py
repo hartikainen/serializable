@@ -50,6 +50,7 @@ class Serializable(object):
         bound_arguments = signature.bind(*positional_values,
                                          *var_positional_values,
                                          **keyword_values, **var_keyword_values)
+        bound_arguments.apply_defaults()
 
         self.__args = bound_arguments.args
         self.__kwargs = bound_arguments.kwargs
@@ -88,9 +89,9 @@ class Serializable(object):
         state = instance.__getstate__()
 
         signature = inspect.signature(instance.__init__)
-        arguments = signature.bind(*state['__args'], **state['__kwargs'])
-        arguments.apply_defaults()
+        bound_arguments = signature.bind(*state['__args'], **state['__kwargs'])
+        bound_arguments.apply_defaults()
 
-        out = type(instance)(*arguments.args, **arguments.kwargs)
+        out = type(instance)(*bound_arguments.args, **bound_arguments.kwargs)
 
         return out
