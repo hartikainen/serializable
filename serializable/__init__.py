@@ -35,6 +35,7 @@ class Serializable(object):
     def __init__(self, *args, **kwargs):
         self.__args = args
         self.__kwargs = kwargs
+        self.__initialized = True
 
     def __initialize(self, locals_):
         if getattr(self, "__initialized", False):
@@ -87,6 +88,10 @@ class Serializable(object):
         self.__initialized = True
 
     def __getstate__(self):
+        assert self.__initialized, (
+            "Cannot get state from uninitialized Serializable. Forgot to call"
+            " `self._Serializable__initialize` in your __init__ method?")
+
         state = {
             '__args': self.__args,
             '__kwargs': self.__kwargs,
@@ -95,12 +100,21 @@ class Serializable(object):
         return state
 
     def __setstate__(self, state):
+        assert self.__initialized, (
+            "Cannot set state of uninitialized Serializable. Forgot to call"
+            " `self._Serializable__initialize` in your __init__ method?")
+
         out = type(self)(*state["__args"], **state["__kwargs"])
         self.__dict__.update(out.__dict__)
 
     @staticmethod
     def clone(instance, **kwargs):
-        assert isinstance(instance, Serializable) and instance.__initialized
+        assert isinstance(instance, Serializable), (
+            "Can only clone Serializable objects. Got: {}"
+            "".format(type(instance)))
+        assert getattr(instance, '_Serializable__initialized', False), (
+            "Cannot clone an uninitialized Serializable. Forgot to call"
+            " `self._Serializable__initialize` in your __init__ method?")
 
         state = instance.__getstate__()
 
