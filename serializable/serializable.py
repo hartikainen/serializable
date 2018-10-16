@@ -4,7 +4,7 @@ import inspect
 class Serializable(object):
 
     def __initialize(self, locals_):
-        if getattr(self, "__initialized", False):
+        if getattr(self, "_Serializable__initialized", False):
             return
 
         signature = inspect.signature(self.__init__)
