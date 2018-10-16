@@ -3,6 +3,7 @@ from serializable import Serializable
 
 
 class SimpleSerializable(Serializable):
+
     def __init__(self, arg1, *args, kwarg1=None, **kwargs):
         self.arg1 = arg1
         self.args = args
@@ -12,6 +13,7 @@ class SimpleSerializable(Serializable):
 
 
 class ImplicitInitializationSerializable(Serializable):
+
     def __init__(self, arg1, *args, kwarg1=None, **kwargs):
         self.arg1 = arg1
         self.args = args
@@ -29,6 +31,7 @@ def assert_objects_match(object1, object2):
 
 
 class TestSerializable(unittest.TestCase):
+
     def test_args_functionality(self):
         simple_object_1 = SimpleSerializable('ARG1')
         simple_object_2 = Serializable.clone(simple_object_1)
@@ -51,7 +54,8 @@ class TestSerializable(unittest.TestCase):
         simple_object_1 = SimpleSerializable(
             'ARG1',
             kwarg1='KWARG1',
-            **{'kwargs[1]': 'KWARGS[1]', 'kwargs[2]': 'KWARGS[2]'})
+            **{'kwargs[1]': 'KWARGS[1]',
+               'kwargs[2]': 'KWARGS[2]'})
 
         simple_object_2 = Serializable.clone(simple_object_1)
 
@@ -59,7 +63,8 @@ class TestSerializable(unittest.TestCase):
 
     def test_variable_kwargs_functionality(self):
         simple_object_1 = SimpleSerializable(
-            'ARG1', **{'kwargs[1]': 'KWARGS[1]', 'kwargs[2]': 'KWARGS[2]'})
+            'ARG1', **{'kwargs[1]': 'KWARGS[1]',
+                       'kwargs[2]': 'KWARGS[2]'})
 
         simple_object_2 = Serializable.clone(simple_object_1)
 
@@ -78,8 +83,8 @@ class TestSerializable(unittest.TestCase):
             'ARG1',
             *('ARGS[1]', 'ARGS[2]'),
             kwarg1='KWARG1',
-            **{'kwargs[1]': 'KWARGS[1]', 'kwargs[2]': 'KWARGS[2]'}
-        )
+            **{'kwargs[1]': 'KWARGS[1]',
+               'kwargs[2]': 'KWARGS[2]'})
 
         simple_object_2 = Serializable.clone(simple_object_1)
 
@@ -87,10 +92,9 @@ class TestSerializable(unittest.TestCase):
 
     def test_missing_default_values(self):
         simple_object_1 = SimpleSerializable(
-            'ARG1',
-            *('ARGS[1]', 'ARGS[2]'),
-            **{'kwargs[1]': 'KWARGS[1]', 'kwargs[2]': 'KWARGS[2]'}
-        )
+            'ARG1', *('ARGS[1]', 'ARGS[2]'),
+            **{'kwargs[1]': 'KWARGS[1]',
+               'kwargs[2]': 'KWARGS[2]'})
 
         simple_object_2 = Serializable.clone(simple_object_1)
 
@@ -101,8 +105,8 @@ class TestSerializable(unittest.TestCase):
             'ARG1',
             *('ARGS[1]', 'ARGS[2]'),
             kwarg1='KWARG1',
-            **{'kwargs[1]': 'KWARGS[1]', 'kwargs[2]': 'KWARGS[2]'}
-        )
+            **{'kwargs[1]': 'KWARGS[1]',
+               'kwargs[2]': 'KWARGS[2]'})
 
         simple_object_2 = Serializable.clone(simple_object_1)
 

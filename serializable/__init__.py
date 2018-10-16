@@ -1,21 +1,19 @@
 import inspect
-import sys
 
 
 def parse_self_arg_key(spec, locals_, instance):
     self_arg_key = None
 
     if locals_[spec.args[0]] is instance:
-        self_arg_key =  spec.args[0]
+        self_arg_key = spec.args[0]
 
     if self_arg_key is None:
         if 'self' in spec.args and instance is locals_['self']:
-            self_arg_key =  'self'
+            self_arg_key = 'self'
 
     if self_arg_key is None:
         possible_self_arg_keys = [
-            arg_name for arg_name in spec.args
-            if locals_[arg_name] is instance
+            arg_name for arg_name in spec.args if locals_[arg_name] is instance
         ]
 
         if len(possible_self_arg_keys) > 0:
@@ -76,11 +74,9 @@ class Serializable(object):
         keyword_values = {key: locals_[key] for key in keyword_keys}
         var_keyword_values = locals_[var_keyword_keys[0]]
 
-        bound_arguments = signature.bind(
-            *positional_values,
-            *var_positional_values,
-            **keyword_values,
-            **var_keyword_values)
+        bound_arguments = signature.bind(*positional_values,
+                                         *var_positional_values,
+                                         **keyword_values, **var_keyword_values)
 
         self.__args = bound_arguments.args
         self.__kwargs = bound_arguments.kwargs
